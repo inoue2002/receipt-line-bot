@@ -118,6 +118,30 @@ npm run open     # GASエディタを開く
 npm run logs     # ログを確認
 ```
 
+## CI/CD（GitHub Actions）
+
+mainブランチにpushすると自動でGASにデプロイされます。
+
+### Secretsの設定
+
+GitHubリポジトリの Settings → Secrets and variables → Actions に以下を追加：
+
+| Secret名 | 値 | 取得方法 |
+|---|---|---|
+| `CLASPRC_JSON` | claspの認証情報 | `cat ~/.clasprc.json` の内容をコピー |
+| `CLASP_JSON` | プロジェクト設定 | `cat .clasp.json` の内容をコピー |
+| `DEPLOYMENT_ID` | デプロイID | `cat .deployment_id` の内容をコピー |
+
+CLIで設定する場合:
+
+```bash
+gh secret set CLASPRC_JSON < ~/.clasprc.json
+gh secret set CLASP_JSON < .clasp.json
+gh secret set DEPLOYMENT_ID -b "$(cat .deployment_id)"
+```
+
+> **注意**: `CLASPRC_JSON` のOAuthトークンは期限切れになることがあります。CIが失敗した場合は `npx clasp login` で再ログインし、Secretを更新してください。
+
 ## 削除
 
 ```bash
