@@ -13,15 +13,20 @@ function showLoading(userId: string): void {
 }
 
 /**
- * LINE にテキストメッセージを返信する
+ * LINE にテキストメッセージを返信する（クイックリプライ付きオプション）
  */
-function replyMessage(replyToken: string, message: string): void {
+function replyMessage(replyToken: string, message: string, quickReply?: any): void {
   const config = getConfig();
   const url = "https://api.line.me/v2/bot/message/reply";
 
+  const msg: any = { type: "text", text: message };
+  if (quickReply) {
+    msg.quickReply = quickReply;
+  }
+
   const payload = {
     replyToken: replyToken,
-    messages: [{ type: "text", text: message }],
+    messages: [msg],
   };
 
   UrlFetchApp.fetch(url, {
@@ -31,6 +36,33 @@ function replyMessage(replyToken: string, message: string): void {
     payload: JSON.stringify(payload),
     muteHttpExceptions: true,
   });
+}
+
+/**
+ * メニュー用のクイックリプライオブジェクト
+ */
+function getMenuQuickReply(): any {
+  return {
+    items: [
+      { type: "action", action: { type: "message", label: "登録確認", text: "登録確認" } },
+      { type: "action", action: { type: "uri", label: "友達に共有", uri: "https://line.me/R/nv/recommendOA/@" + getBotId() } },
+    ],
+  };
+}
+
+/**
+ * Bot ID を取得（LINE_CHANNEL_IDをScript Propertiesに入れるか、ハードコードする）
+ */
+function getBotId(): string {
+  const config = getConfig();
+  // Bot の基本情報から取得
+  const response = UrlFetchApp.fetch("https://api.line.me/v2/bot/info", {
+    method: "get",
+    headers: { Authorization: `Bearer ${config.LINE_CHANNEL_ACCESS_TOKEN}` },
+    muteHttpExceptions: true,
+  });
+  const info = JSON.parse(response.getContentText());
+  return info.basicId || "";
 }
 
 /**

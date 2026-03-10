@@ -16,10 +16,19 @@ function doPost(e: GoogleAppsScript.Events.DoPost): GoogleAppsScript.Content.Tex
   for (const event of events) {
     logInfo("event: " + event.type, event.message ? event.message.type : "");
 
-    if (event.type !== "message") continue;
-
     const replyToken = event.replyToken;
-    const userId = event.source.userId;
+    const userId = event.source?.userId;
+
+    if (event.type === "follow") {
+      replyMessage(
+        replyToken,
+        "レシート経費記録Botへようこそ！\n\nレシートの写真を送ると、AIが自動で読み取ってGoogle Sheetsに記録します。",
+        getMenuQuickReply(),
+      );
+      continue;
+    }
+
+    if (event.type !== "message") continue;
 
     if (event.message.type === "image") {
       handleImageMessage(event.message.id, replyToken, userId);
@@ -85,10 +94,17 @@ function handleTextMessage(text: string, replyToken: string, userId: string): vo
     clearPendingData(userId);
     logInfo("キャンセル", "userId: " + userId);
     replyMessage(replyToken, "キャンセルしました。もう一度レシートの写真を送ってください。");
+  } else if (text === "登録確認") {
+    const summary = getRecentSummary();
+    replyMessage(replyToken, "直近7週間の登録:\n\n" + summary, getMenuQuickReply());
   } else if (data && tryEditPendingData(text, data, replyToken, userId)) {
     // 修正処理が成功した場合は tryEditPendingData 内で返信済み
   } else {
-    replyMessage(replyToken, "レシートの写真を送ってください。\n\nあなたのユーザーID:\n" + userId);
+    replyMessage(
+      replyToken,
+      "レシートの写真を送ってください。\n\nあなたのユーザーID:\n" + userId,
+      getMenuQuickReply(),
+    );
   }
 }
 
