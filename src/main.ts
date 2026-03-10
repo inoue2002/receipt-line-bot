@@ -57,8 +57,8 @@ function handleTextMessage(text: string, replyToken: string, userId: string): vo
   if (text === "OK") {
     const data = getPendingData(userId);
     if (data) {
+      clearPendingData(userId); // 先にクリアして重複登録を防止
       appendToSheet(data);
-      clearPendingData(userId);
       replyMessage(replyToken, "登録しました！");
     } else {
       replyMessage(replyToken, "登録待ちのデータがありません。レシートの写真を送ってください。");
