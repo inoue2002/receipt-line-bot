@@ -14,6 +14,8 @@ function doPost(e: GoogleAppsScript.Events.DoPost): GoogleAppsScript.Content.Tex
   const events = json.events;
 
   for (const event of events) {
+    logInfo("event: " + event.type, event.message ? event.message.type : "");
+
     if (event.type !== "message") continue;
 
     const replyToken = event.replyToken;
@@ -36,22 +38,24 @@ function doPost(e: GoogleAppsScript.Events.DoPost): GoogleAppsScript.Content.Tex
  */
 function handleImageMessage(messageId: string, replyToken: string, userId: string): void {
   try {
+    logInfo("画像受信", "messageId: " + messageId);
     const image = getImageFromLine(messageId);
-    Logger.log("Image received: " + image.mimeType + ", base64 length: " + image.base64.length);
     const data = analyzeReceipt(image.base64, image.mimeType);
+    logInfo("Gemini解析完了", JSON.stringify(data));
 
     // 重複チェック
     const dupCount = countDuplicates(data);
     if (dupCount > 0) {
       data.store = data.store + "(" + (dupCount + 1) + ")";
+      logInfo("重複検出", "count: " + dupCount);
     }
 
     // 一時保存（ユーザーの確認待ち）
     savePendingData(userId, data);
     replyWithConfirmation(replyToken, data, dupCount > 0);
   } catch (e) {
-    Logger.log("Error: " + e);
     const errorMsg = e instanceof Error ? e.message : String(e);
+    logError("画像処理エラー", errorMsg);
     replyMessage(replyToken, "エラー: " + errorMsg);
   }
 }
@@ -65,12 +69,14 @@ function handleTextMessage(text: string, replyToken: string, userId: string): vo
     if (data) {
       clearPendingData(userId); // 先にクリアして重複登録を防止
       appendToSheet(data);
+      logInfo("登録完了", JSON.stringify(data));
       replyMessage(replyToken, "登録しました！");
     } else {
       replyMessage(replyToken, "登録待ちのデータがありません。レシートの写真を送ってください。");
     }
   } else if (text === "やり直し") {
     clearPendingData(userId);
+    logInfo("キャンセル", "userId: " + userId);
     replyMessage(replyToken, "キャンセルしました。もう一度レシートの写真を送ってください。");
   } else {
     replyMessage(replyToken, "レシートの写真を送ってください。");

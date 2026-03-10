@@ -31,6 +31,17 @@ function setup(): void {
   // 金額列のフォーマット
   sheet.getRange("B:B").setNumberFormat("#,##0");
 
+  // logs シート作成
+  if (!ss.getSheetByName("logs")) {
+    const logSheet = ss.insertSheet("logs");
+    logSheet.appendRow(["日時", "レベル", "メッセージ", "詳細"]);
+    logSheet.getRange(1, 1, 1, 4).setFontWeight("bold");
+    logSheet.setColumnWidth(1, 160);
+    logSheet.setColumnWidth(2, 60);
+    logSheet.setColumnWidth(3, 300);
+    logSheet.setColumnWidth(4, 500);
+  }
+
   Logger.log("セットアップ完了！");
   Logger.log("スプレッドシート: " + ss.getUrl());
 }
