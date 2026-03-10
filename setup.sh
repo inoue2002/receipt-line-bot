@@ -16,14 +16,26 @@ if ! npx clasp login --status 2>/dev/null | grep -q "You are logged in"; then
 fi
 echo "  ✅ ログイン済み"
 
-# 3. スプレッドシート + GAS プロジェクト同時作成
+# 3. GAS プロジェクト接続 or 新規作成
 echo ""
-echo "[3/7] スプレッドシート & GAS プロジェクト作成..."
+echo "[3/7] GAS プロジェクト..."
 if [ -f .clasp.json ]; then
   echo "  ⚠️  .clasp.json が既に存在します。スキップします。"
 else
-  npx clasp create --title "レシート経費記録" --type sheets
-  echo "  ✅ スプレッドシート + GAS プロジェクト作成完了"
+  echo "  既存のGASプロジェクトに接続する場合は Script ID を入力してください。"
+  echo "  新規作成する場合はそのまま Enter を押してください。"
+  echo ""
+  echo "  Script ID は GAS エディタの URL から取得できます:"
+  echo "  https://script.google.com/d/【この部分】/edit"
+  echo ""
+  read -p "  Script ID (新規作成は Enter): " SCRIPT_ID
+  if [ -n "$SCRIPT_ID" ]; then
+    npx clasp clone "$SCRIPT_ID" --rootDir .
+    echo "  ✅ 既存プロジェクトに接続完了"
+  else
+    npx clasp create --title "レシート経費記録" --type sheets
+    echo "  ✅ スプレッドシート + GAS プロジェクト作成完了"
+  fi
 fi
 
 # 4. コードをプッシュ
