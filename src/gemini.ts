@@ -82,4 +82,5 @@ interface ReceiptData {
   store: string;
   category: string;
   note: string;
+  imageUrl?: string;
 }

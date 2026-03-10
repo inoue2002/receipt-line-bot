@@ -43,6 +43,11 @@ function handleImageMessage(messageId: string, replyToken: string, userId: strin
     const data = analyzeReceipt(image.base64, image.mimeType);
     logInfo("Gemini解析完了", JSON.stringify(data));
 
+    // 画像を Drive に保存
+    const fileName = (data.date || "unknown") + "_" + (data.store || "unknown");
+    data.imageUrl = saveImageToDrive(image.base64, image.mimeType, fileName);
+    logInfo("画像保存", data.imageUrl);
+
     // 重複チェック
     const dupCount = countDuplicates(data);
     if (dupCount > 0) {

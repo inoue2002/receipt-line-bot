@@ -16,7 +16,7 @@ function setup(): void {
   sheet.setName("レシート");
 
   // ヘッダー追加
-  const headers = ["日付", "金額", "店名", "勘定科目", "備考", "登録日時"];
+  const headers = ["日付", "金額", "店名", "勘定科目", "備考", "登録日時", "画像"];
   sheet.appendRow(headers);
   sheet.getRange(1, 1, 1, headers.length).setFontWeight("bold");
 
@@ -27,6 +27,7 @@ function setup(): void {
   sheet.setColumnWidth(4, 120); // 勘定科目
   sheet.setColumnWidth(5, 250); // 備考
   sheet.setColumnWidth(6, 160); // 登録日時
+  sheet.setColumnWidth(7, 200); // 画像
 
   // 金額列のフォーマット
   sheet.getRange("B:B").setNumberFormat("#,##0");

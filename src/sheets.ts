@@ -7,12 +7,12 @@ function appendToSheet(data: ReceiptData): void {
 
   // ヘッダーがなければ追加
   if (sheet.getLastRow() === 0) {
-    sheet.appendRow(["日付", "金額", "店名", "勘定科目", "備考", "登録日時"]);
-    sheet.getRange(1, 1, 1, 6).setFontWeight("bold");
+    sheet.appendRow(["日付", "金額", "店名", "勘定科目", "備考", "登録日時", "画像"]);
+    sheet.getRange(1, 1, 1, 7).setFontWeight("bold");
   }
 
   const now = Utilities.formatDate(new Date(), "Asia/Tokyo", "yyyy/MM/dd HH:mm");
-  sheet.appendRow([data.date, data.amount, data.store, data.category, data.note, now]);
+  sheet.appendRow([data.date, data.amount, data.store, data.category, data.note, now, data.imageUrl || ""]);
 }
 
 /**
