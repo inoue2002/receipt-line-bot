@@ -25,53 +25,53 @@ function appendToSheet(data: ReceiptData): void {
   sheet.appendRow([data.date, data.amount, data.store, data.category, data.note, now, data.imageUrl || ""]);
 }
 
+interface RecentEntry {
+  date: string;
+  amount: number;
+  store: string;
+  category: string;
+}
+
+interface RecentSummaryResult {
+  entries: RecentEntry[];
+  totalCount: number;
+  totalAmount: number;
+}
+
 /**
- * 直近7週間の登録データを週ごとに集計して返す
+ * 直近7週間の登録データを返す
  */
-function getRecentSummary(): string {
+function getRecentData(): RecentSummaryResult {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
   const now = new Date();
   const sevenWeeksAgo = new Date(now.getTime() - 49 * 24 * 60 * 60 * 1000);
 
-  // 全年度シートからデータを集める
-  const allRows: { date: string; amount: number; store: string }[] = [];
+  const entries: RecentEntry[] = [];
   const sheets = ss.getSheets();
   for (const sheet of sheets) {
     if (!sheet.getName().startsWith("レシート_")) continue;
     if (sheet.getLastRow() <= 1) continue;
-    const rows = sheet.getRange(2, 1, sheet.getLastRow() - 1, 3).getValues();
+    const rows = sheet.getRange(2, 1, sheet.getLastRow() - 1, 4).getValues();
     for (const row of rows) {
-      allRows.push({ date: String(row[0]), amount: Number(row[1]), store: String(row[2]) });
+      const date = String(row[0]);
+      const d = new Date(date.replace(/\//g, "-"));
+      if (isNaN(d.getTime()) || d < sevenWeeksAgo) continue;
+      entries.push({
+        date: date,
+        amount: Number(row[1]),
+        store: String(row[2]),
+        category: String(row[3]),
+      });
     }
   }
 
-  // 週ごとに集計
-  const weekMap: { [key: string]: { count: number; total: number } } = {};
-  for (const row of allRows) {
-    const d = new Date(row.date.replace(/\//g, "-"));
-    if (isNaN(d.getTime()) || d < sevenWeeksAgo) continue;
-    // 週の月曜日を基準にキーを作る
-    const monday = new Date(d);
-    monday.setDate(d.getDate() - ((d.getDay() + 6) % 7));
-    const key = Utilities.formatDate(monday, "Asia/Tokyo", "MM/dd");
-    if (!weekMap[key]) weekMap[key] = { count: 0, total: 0 };
-    weekMap[key].count++;
-    weekMap[key].total += row.amount;
-  }
+  // 日付の新しい順
+  entries.sort((a, b) => b.date.localeCompare(a.date));
 
-  const sortedKeys = Object.keys(weekMap).sort();
-  if (sortedKeys.length === 0) return "直近7週間の登録はありません。";
-
-  let totalCount = 0;
   let totalAmount = 0;
-  const lines = sortedKeys.map((key) => {
-    const w = weekMap[key];
-    totalCount += w.count;
-    totalAmount += w.total;
-    return `${key}〜: ${w.count}件 ¥${w.total.toLocaleString()}`;
-  });
-  lines.push(`\n合計: ${totalCount}件 ¥${totalAmount.toLocaleString()}`);
-  return lines.join("\n");
+  for (const e of entries) totalAmount += e.amount;
+
+  return { entries, totalCount: entries.length, totalAmount };
 }
 
 /**

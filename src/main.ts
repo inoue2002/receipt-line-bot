@@ -95,8 +95,8 @@ function handleTextMessage(text: string, replyToken: string, userId: string): vo
     logInfo("キャンセル", "userId: " + userId);
     replyMessage(replyToken, "キャンセルしました。もう一度レシートの写真を送ってください。");
   } else if (text === "登録確認") {
-    const summary = getRecentSummary();
-    replyMessage(replyToken, "直近7週間の登録:\n\n" + summary, getMenuQuickReply());
+    const data = getRecentData();
+    replyWithSummary(replyToken, data);
   } else if (data && tryEditPendingData(text, data, replyToken, userId)) {
     // 修正処理が成功した場合は tryEditPendingData 内で返信済み
   } else {
