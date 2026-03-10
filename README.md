@@ -59,9 +59,17 @@ GAS エディタ（`npx clasp open`）→ プロジェクトの設定 → スク
 | `LINE_CHANNEL_ACCESS_TOKEN` | LINEのチャネルアクセストークン |
 | `LINE_CHANNEL_SECRET` | LINEのチャネルシークレット |
 | `GEMINI_API_KEY` | Gemini APIキー |
-| `SPREADSHEET_ID` | Google SheetsのID |
 
-### 6. LINE Webhook URL を設定
+### 6. スプレッドシートの自動作成
+
+GAS エディタで `setup` 関数を実行すると、スプレッドシートが自動作成されます。
+SPREADSHEET_ID も自動で Script Properties に保存されるので手動設定不要です。
+
+```
+GAS エディタ → setup を選択 → 実行
+```
+
+### 7. LINE Webhook URL を設定
 
 1. `npx clasp deploy` で表示される Web アプリ URL をコピー
 2. LINE Developers → チャネル → Messaging API → Webhook URL に貼り付け
