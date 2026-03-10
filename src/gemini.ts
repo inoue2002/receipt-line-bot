@@ -3,7 +3,7 @@
  */
 function analyzeReceipt(imageBase64: string, mimeType: string): ReceiptData | null {
   const config = getConfig();
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${config.GEMINI_API_KEY}`;
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${config.GEMINI_API_KEY}`;
 
   const prompt = `このレシート画像から以下の情報をJSON形式で抽出してください。
 必ず以下のフォーマットで返してください。JSON以外のテキストは含めないでください。
@@ -50,19 +50,30 @@ function analyzeReceipt(imageBase64: string, mimeType: string): ReceiptData | nu
   };
 
   const response = UrlFetchApp.fetch(url, options);
-  const result = JSON.parse(response.getContentText());
+  const responseText = response.getContentText();
+  const statusCode = response.getResponseCode();
+
+  Logger.log("Gemini status: " + statusCode);
+  Logger.log("Gemini response: " + responseText.substring(0, 500));
+
+  if (statusCode !== 200) {
+    throw new Error("Gemini API error (" + statusCode + "): " + responseText.substring(0, 200));
+  }
+
+  const result = JSON.parse(responseText);
 
   try {
     const text = result.candidates[0].content.parts[0].text;
+    Logger.log("Gemini text: " + text);
     // JSON部分を抽出（```json ... ``` で囲まれている場合にも対応）
     const jsonMatch = text.match(/\{[\s\S]*\}/);
     if (jsonMatch) {
       return JSON.parse(jsonMatch[0]) as ReceiptData;
     }
+    throw new Error("JSONが見つかりません: " + text.substring(0, 100));
   } catch (e) {
-    Logger.log("Gemini parse error: " + e);
+    throw new Error("Gemini解析エラー: " + e);
   }
-  return null;
 }
 
 interface ReceiptData {

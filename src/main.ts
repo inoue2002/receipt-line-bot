@@ -1,4 +1,11 @@
 /**
+ * GET リクエスト（LINE Webhook URL検証用）
+ */
+function doGet(): GoogleAppsScript.Content.TextOutput {
+  return ContentService.createTextOutput("OK");
+}
+
+/**
  * LINE Webhook のエントリポイント
  * GAS の Web アプリとしてデプロイし、Webhook URL に設定する
  */
@@ -30,19 +37,16 @@ function doPost(e: GoogleAppsScript.Events.DoPost): GoogleAppsScript.Content.Tex
 function handleImageMessage(messageId: string, replyToken: string, userId: string): void {
   try {
     const image = getImageFromLine(messageId);
+    Logger.log("Image received: " + image.mimeType + ", base64 length: " + image.base64.length);
     const data = analyzeReceipt(image.base64, image.mimeType);
-
-    if (!data) {
-      replyMessage(replyToken, "レシートを読み取れませんでした。もう一度撮影してください。");
-      return;
-    }
 
     // 一時保存（ユーザーの確認待ち）
     savePendingData(userId, data);
     replyWithConfirmation(replyToken, data);
   } catch (e) {
     Logger.log("Error: " + e);
-    replyMessage(replyToken, "エラーが発生しました: " + e);
+    const errorMsg = e instanceof Error ? e.message : String(e);
+    replyMessage(replyToken, "エラー: " + errorMsg);
   }
 }
 
