@@ -1,23 +1,55 @@
-const DRIVE_FOLDER_NAME = "レシート画像";
+const PROJECT_FOLDER_NAME = "レシート経費記録";
 
 /**
- * レシート画像を Google Drive に保存し、URLを返す
+ * プロジェクトフォルダを取得（なければ作成し、スプレッドシートも移動）
  */
-function saveImageToDrive(base64: string, mimeType: string, fileName: string): string {
-  const folder = getOrCreateFolder();
+function getProjectFolder(): GoogleAppsScript.Drive.Folder {
+  const folders = DriveApp.getFoldersByName(PROJECT_FOLDER_NAME);
+  if (folders.hasNext()) {
+    return folders.next();
+  }
+
+  // プロジェクトフォルダ作成
+  const folder = DriveApp.createFolder(PROJECT_FOLDER_NAME);
+
+  // スプレッドシートをフォルダに移動
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const file = DriveApp.getFileById(ss.getId());
+  folder.addFile(file);
+  DriveApp.getRootFolder().removeFile(file);
+
+  return folder;
+}
+
+/**
+ * レシート画像を Google Drive に年/月フォルダで保存し、URLを返す
+ */
+function saveImageToDrive(base64: string, mimeType: string, fileName: string, date: string): string {
+  const projectFolder = getProjectFolder();
+
+  // 画像/YYYY/MM フォルダを取得or作成
+  const imageFolder = getOrCreateSubFolder(projectFolder, "画像");
+  const year = (date || "").substring(0, 4) || new Date().getFullYear().toString();
+  const month = (date || "").substring(5, 7) || ("0" + (new Date().getMonth() + 1)).slice(-2);
+  const yearFolder = getOrCreateSubFolder(imageFolder, year);
+  const monthFolder = getOrCreateSubFolder(yearFolder, month);
+
   const ext = mimeType.includes("png") ? ".png" : ".jpg";
   const blob = Utilities.newBlob(Utilities.base64Decode(base64), mimeType, fileName + ext);
-  const file = folder.createFile(blob);
+  const file = monthFolder.createFile(blob);
   return file.getUrl();
 }
 
 /**
- * Drive フォルダを取得（なければ作成）
+ * サブフォルダを取得（なければ作成）
  */
-function getOrCreateFolder(): GoogleAppsScript.Drive.Folder {
-  const folders = DriveApp.getFoldersByName(DRIVE_FOLDER_NAME);
+function getOrCreateSubFolder(
+  parent: GoogleAppsScript.Drive.Folder,
+  name: string,
+): GoogleAppsScript.Drive.Folder {
+  const folders = parent.getFoldersByName(name);
   if (folders.hasNext()) {
     return folders.next();
   }
-  return DriveApp.createFolder(DRIVE_FOLDER_NAME);
+  return parent.createFolder(name);
 }

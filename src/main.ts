@@ -46,7 +46,7 @@ function handleImageMessage(messageId: string, replyToken: string, userId: strin
 
     // 画像を Drive に保存
     const fileName = (data.date || "unknown") + "_" + (data.store || "unknown");
-    data.imageUrl = saveImageToDrive(image.base64, image.mimeType, fileName);
+    data.imageUrl = saveImageToDrive(image.base64, image.mimeType, fileName, data.date || "");
     logInfo("画像保存", data.imageUrl);
 
     // 重複チェック
