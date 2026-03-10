@@ -42,11 +42,14 @@ function getImageFromLine(messageId: string): { base64: string; mimeType: string
 /**
  * LINE にクイックリプライ付きメッセージを送る（OK / やり直し）
  */
-function replyWithConfirmation(replyToken: string, data: ReceiptData): void {
+function replyWithConfirmation(replyToken: string, data: ReceiptData, isDuplicate: boolean = false): void {
   const config = getConfig();
   const url = "https://api.line.me/v2/bot/message/reply";
 
-  const summary = `${data.date} ¥${data.amount.toLocaleString()} ${data.store}\n科目: ${data.category}\n備考: ${data.note}`;
+  let summary = `${data.date} ¥${data.amount.toLocaleString()} ${data.store}\n科目: ${data.category}\n備考: ${data.note}`;
+  if (isDuplicate) {
+    summary = "⚠️ 同じ日付・金額・店名のデータが既にあります\n\n" + summary;
+  }
 
   const payload = {
     replyToken: replyToken,

@@ -14,3 +14,24 @@ function appendToSheet(data: ReceiptData): void {
   const now = Utilities.formatDate(new Date(), "Asia/Tokyo", "yyyy/MM/dd HH:mm");
   sheet.appendRow([data.date, data.amount, data.store, data.category, data.note, now]);
 }
+
+/**
+ * 同じ日付・金額・店名のデータが既にあるか確認し、件数を返す
+ */
+function countDuplicates(data: ReceiptData): number {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const sheet = ss.getSheetByName("レシート");
+  if (!sheet || sheet.getLastRow() <= 1) return 0;
+
+  const rows = sheet.getRange(2, 1, sheet.getLastRow() - 1, 3).getValues();
+  let count = 0;
+  for (const row of rows) {
+    const date = String(row[0]);
+    const amount = Number(row[1]);
+    const store = String(row[2]).replace(/\(\d+\)$/, ""); // (2)等を除いて比較
+    if (date === data.date && amount === data.amount && store === data.store) {
+      count++;
+    }
+  }
+  return count;
+}

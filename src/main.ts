@@ -40,9 +40,15 @@ function handleImageMessage(messageId: string, replyToken: string, userId: strin
     Logger.log("Image received: " + image.mimeType + ", base64 length: " + image.base64.length);
     const data = analyzeReceipt(image.base64, image.mimeType);
 
+    // 重複チェック
+    const dupCount = countDuplicates(data);
+    if (dupCount > 0) {
+      data.store = data.store + "(" + (dupCount + 1) + ")";
+    }
+
     // 一時保存（ユーザーの確認待ち）
     savePendingData(userId, data);
-    replyWithConfirmation(replyToken, data);
+    replyWithConfirmation(replyToken, data, dupCount > 0);
   } catch (e) {
     Logger.log("Error: " + e);
     const errorMsg = e instanceof Error ? e.message : String(e);
