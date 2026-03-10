@@ -2,6 +2,7 @@
 // LINE_CHANNEL_ACCESS_TOKEN: LINE Messaging API のチャネルアクセストークン
 // LINE_CHANNEL_SECRET: LINE Messaging API のチャネルシークレット
 // GEMINI_API_KEY: Google Gemini API キー
+// LINE_BOT_ID: LINE Bot の Basic ID（例: @927vhqkf）
 
 function getConfig() {
   const props = PropertiesService.getScriptProperties();
@@ -9,5 +10,6 @@ function getConfig() {
     LINE_CHANNEL_ACCESS_TOKEN: props.getProperty("LINE_CHANNEL_ACCESS_TOKEN") || "",
     LINE_CHANNEL_SECRET: props.getProperty("LINE_CHANNEL_SECRET") || "",
     GEMINI_API_KEY: props.getProperty("GEMINI_API_KEY") || "",
+    LINE_BOT_ID: props.getProperty("LINE_BOT_ID") || "",
   };
 }

@@ -13,6 +13,7 @@ function setProperties() {
     LINE_CHANNEL_ACCESS_TOKEN: "YOUR_LINE_CHANNEL_ACCESS_TOKEN",
     LINE_CHANNEL_SECRET: "YOUR_LINE_CHANNEL_SECRET",
     GEMINI_API_KEY: "YOUR_GEMINI_API_KEY",
+    LINE_BOT_ID: "YOUR_LINE_BOT_ID",
   });
   Logger.log("Properties set!");
 }
