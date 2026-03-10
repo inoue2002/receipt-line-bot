@@ -1,0 +1,15 @@
+{
+  "name": "receipt-line-bot",
+  "version": "1.0.0",
+  "description": "LINE Bot for receipt OCR with Gemini API + Google Sheets (Google Apps Script)",
+  "scripts": {
+    "push": "clasp push",
+    "deploy": "clasp push && clasp deploy",
+    "open": "clasp open",
+    "logs": "clasp logs"
+  },
+  "devDependencies": {
+    "@google/clasp": "^2.4.2",
+    "@types/google-apps-script": "^1.0.83"
+  }
+}
