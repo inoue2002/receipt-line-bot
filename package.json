@@ -4,7 +4,7 @@
   "description": "LINE Bot for receipt OCR with Gemini API + Google Sheets (Google Apps Script)",
   "scripts": {
     "push": "clasp push",
-    "deploy": "clasp push && clasp deploy",
+    "deploy": "bash update.sh",
     "open": "clasp open",
     "logs": "clasp logs"
   },

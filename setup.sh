@@ -58,8 +58,10 @@ DEPLOY_URL=$(echo "$DEPLOY_OUTPUT" | grep -oE 'AKfycb[a-zA-Z0-9_-]+')
 if [ -z "$DEPLOY_URL" ]; then
   echo "  ⚠️  デプロイIDの取得に失敗しました。手動でWebhook URLを設定してください。"
 else
+  echo "$DEPLOY_URL" > .deployment_id
   WEBHOOK_URL="https://script.google.com/macros/s/${DEPLOY_URL}/exec"
   echo "  ✅ デプロイ完了"
+  echo "  デプロイID を .deployment_id に保存しました"
   echo "  Webhook URL: $WEBHOOK_URL"
 
   # 7. LINE Webhook URL を自動設定
