@@ -1,14 +1,24 @@
 /**
- * Google Sheets にレシートデータを追記する
+ * Google Sheets にレシートデータを追記する（年ごとにシートを分ける）
  */
 function appendToSheet(data: ReceiptData): void {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
-  const sheet = ss.getSheetByName("レシート") || ss.insertSheet("レシート");
+  const year = (data.date || "").substring(0, 4) || new Date().getFullYear().toString();
+  const sheetName = "レシート_" + year;
+  let sheet = ss.getSheetByName(sheetName);
 
-  // ヘッダーがなければ追加
-  if (sheet.getLastRow() === 0) {
+  if (!sheet) {
+    sheet = ss.insertSheet(sheetName);
     sheet.appendRow(["日付", "金額", "店名", "勘定科目", "備考", "登録日時", "画像"]);
     sheet.getRange(1, 1, 1, 7).setFontWeight("bold");
+    sheet.setColumnWidth(1, 120);
+    sheet.setColumnWidth(2, 100);
+    sheet.setColumnWidth(3, 200);
+    sheet.setColumnWidth(4, 120);
+    sheet.setColumnWidth(5, 250);
+    sheet.setColumnWidth(6, 160);
+    sheet.setColumnWidth(7, 200);
+    sheet.getRange("B:B").setNumberFormat("#,##0");
   }
 
   const now = Utilities.formatDate(new Date(), "Asia/Tokyo", "yyyy/MM/dd HH:mm");
@@ -20,7 +30,8 @@ function appendToSheet(data: ReceiptData): void {
  */
 function countDuplicates(data: ReceiptData): number {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
-  const sheet = ss.getSheetByName("レシート");
+  const year = (data.date || "").substring(0, 4) || new Date().getFullYear().toString();
+  const sheet = ss.getSheetByName("レシート_" + year);
   if (!sheet || sheet.getLastRow() <= 1) return 0;
 
   const rows = sheet.getRange(2, 1, sheet.getLastRow() - 1, 3).getValues();

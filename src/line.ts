@@ -1,4 +1,18 @@
 /**
+ * ローディングアニメーションを表示する（最大60秒）
+ */
+function showLoading(userId: string): void {
+  const config = getConfig();
+  UrlFetchApp.fetch("https://api.line.me/v2/bot/chat/loading/start", {
+    method: "post",
+    contentType: "application/json",
+    headers: { Authorization: `Bearer ${config.LINE_CHANNEL_ACCESS_TOKEN}` },
+    payload: JSON.stringify({ chatId: userId, loadingSeconds: 60 }),
+    muteHttpExceptions: true,
+  });
+}
+
+/**
  * LINE にテキストメッセージを返信する
  */
 function replyMessage(replyToken: string, message: string): void {

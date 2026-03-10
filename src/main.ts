@@ -38,6 +38,7 @@ function doPost(e: GoogleAppsScript.Events.DoPost): GoogleAppsScript.Content.Tex
  */
 function handleImageMessage(messageId: string, replyToken: string, userId: string): void {
   try {
+    showLoading(userId);
     logInfo("画像受信", "messageId: " + messageId);
     const image = getImageFromLine(messageId);
     const data = analyzeReceipt(image.base64, image.mimeType);
