@@ -54,8 +54,8 @@ npm install
 # Google アカウントでログイン
 npx clasp login
 
-# 新しい GAS プロジェクトを作成
-npx clasp create --title "receipt-line-bot" --type webapp
+# スプレッドシート + GAS プロジェクトを同時作成
+npx clasp create --title "レシート経費記録" --type sheets
 
 # コードをプッシュ
 npx clasp push
@@ -74,14 +74,10 @@ GAS エディタ（`npx clasp open`）→ プロジェクトの設定 → スク
 | `LINE_CHANNEL_SECRET` | LINEのチャネルシークレット |
 | `GEMINI_API_KEY` | Gemini APIキー |
 
-### 6. スプレッドシートの自動作成
+### 6. シートのセットアップ
 
-GAS エディタで `setup` 関数を実行すると、スプレッドシートが自動作成されます。
-SPREADSHEET_ID も自動で Script Properties に保存されるので手動設定不要です。
-
-```
-GAS エディタ → setup を選択 → 実行
-```
+GAS エディタで `setup` 関数を実行すると、ヘッダーとフォーマットが設定されます。
+スプレッドシート自体は `clasp create --type sheets` で自動作成済みです。
 
 ### 7. LINE Webhook URL を設定
 

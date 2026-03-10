@@ -2,8 +2,7 @@
  * Google Sheets にレシートデータを追記する
  */
 function appendToSheet(data: ReceiptData): void {
-  const config = getConfig();
-  const ss = SpreadsheetApp.openById(config.SPREADSHEET_ID);
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
   const sheet = ss.getSheetByName("レシート") || ss.insertSheet("レシート");
 
   // ヘッダーがなければ追加

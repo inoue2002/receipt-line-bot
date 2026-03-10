@@ -1,20 +1,18 @@
 /**
- * 初回セットアップ: スプレッドシートを自動作成し、Script Properties に保存する
+ * 初回セットアップ: スプレッドシートのヘッダーとフォーマットを設定する
  * GAS エディタから手動で1回だけ実行する
  */
 function setup(): void {
-  const props = PropertiesService.getScriptProperties();
-  const existing = props.getProperty("SPREADSHEET_ID");
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  let sheet = ss.getSheetByName("レシート");
 
-  if (existing) {
-    Logger.log("既にスプレッドシートが設定済みです: " + existing);
-    Logger.log("URL: https://docs.google.com/spreadsheets/d/" + existing);
+  if (sheet) {
+    Logger.log("「レシート」シートは既に存在します。スキップします。");
     return;
   }
 
-  // スプレッドシート作成
-  const ss = SpreadsheetApp.create("レシート経費記録");
-  const sheet = ss.getActiveSheet();
+  // デフォルトシートをリネーム or 新規作成
+  sheet = ss.getSheets()[0];
   sheet.setName("レシート");
 
   // ヘッダー追加
@@ -33,10 +31,6 @@ function setup(): void {
   // 金額列のフォーマット
   sheet.getRange("B:B").setNumberFormat("#,##0");
 
-  // Script Properties に保存
-  props.setProperty("SPREADSHEET_ID", ss.getId());
-
-  Logger.log("スプレッドシートを作成しました！");
-  Logger.log("ID: " + ss.getId());
-  Logger.log("URL: " + ss.getUrl());
+  Logger.log("セットアップ完了！");
+  Logger.log("スプレッドシート: " + ss.getUrl());
 }
