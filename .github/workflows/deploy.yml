@@ -1,0 +1,29 @@
+name: Deploy to GAS
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - run: npm install
+
+      - name: Setup clasp credentials
+        run: echo '${{ secrets.CLASPRC_JSON }}' > ~/.clasprc.json
+
+      - name: Setup clasp project
+        run: echo '${{ secrets.CLASP_JSON }}' > .clasp.json
+
+      - name: Push to GAS
+        run: echo "y" | npx clasp push
+
+      - name: Deploy
+        run: npx clasp deploy -i ${{ secrets.DEPLOYMENT_ID }}
