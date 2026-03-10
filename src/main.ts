@@ -88,7 +88,7 @@ function handleTextMessage(text: string, replyToken: string, userId: string): vo
   } else if (data && tryEditPendingData(text, data, replyToken, userId)) {
     // 修正処理が成功した場合は tryEditPendingData 内で返信済み
   } else {
-    replyMessage(replyToken, "レシートの写真を送ってください。");
+    replyMessage(replyToken, "レシートの写真を送ってください。\n\nあなたのユーザーID:\n" + userId);
   }
 }
 
