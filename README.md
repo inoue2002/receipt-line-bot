@@ -110,6 +110,15 @@ npm run open     # GASエディタを開く
 npm run logs     # ログを確認
 ```
 
+## 削除
+
+```bash
+bash delete.sh
+```
+
+GAS エディタが開くので、左メニュー「概要」→ 右上「︙」→「ゴミ箱に移動」で削除できます。
+削除後は `rm .clasp.json` でローカルの設定も消してください。
+
 ## License
 
 MIT
