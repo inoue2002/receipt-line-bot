@@ -54,33 +54,84 @@ function getImageFromLine(messageId: string): { base64: string; mimeType: string
 }
 
 /**
- * LINE にクイックリプライ付きメッセージを送る（OK / やり直し）
+ * Flex Message で確認メッセージを送る
  */
 function replyWithConfirmation(replyToken: string, data: ReceiptData, isDuplicate: boolean = false): void {
   const config = getConfig();
   const url = "https://api.line.me/v2/bot/message/reply";
 
-  let summary = `${data.date} ¥${data.amount.toLocaleString()} ${data.store}\n科目: ${data.category}\n備考: ${data.note}`;
+  const bodyContents: any[] = [];
+
   if (isDuplicate) {
-    summary = "⚠️ 同じ日付・金額・店名のデータが既にあります\n\n" + summary;
+    bodyContents.push({
+      type: "box",
+      layout: "horizontal",
+      contents: [{ type: "text", text: "⚠️ 同じデータが既にあります", size: "xs", color: "#ff6b6b", wrap: true }],
+      margin: "none",
+    });
   }
+
+  bodyContents.push(
+    makeFlexRow("日付", data.date),
+    makeSeparator(),
+    makeFlexRow("金額", "¥" + data.amount.toLocaleString()),
+    makeSeparator(),
+    makeFlexRow("店名", data.store),
+    makeSeparator(),
+    makeFlexRow("科目", data.category),
+    makeSeparator(),
+    makeFlexRow("備考", data.note),
+  );
+
+  const flexMessage = {
+    type: "flex",
+    altText: `${data.date} ¥${data.amount.toLocaleString()} ${data.store} - これでOK？`,
+    contents: {
+      type: "bubble",
+      header: {
+        type: "box",
+        layout: "vertical",
+        contents: [{ type: "text", text: "レシート読み取り結果", weight: "bold", size: "md", color: "#ffffff" }],
+        backgroundColor: "#27ACB2",
+        paddingAll: "15px",
+      },
+      body: {
+        type: "box",
+        layout: "vertical",
+        contents: bodyContents,
+        spacing: "sm",
+        paddingAll: "15px",
+      },
+      footer: {
+        type: "box",
+        layout: "vertical",
+        contents: [
+          {
+            type: "box",
+            layout: "horizontal",
+            contents: [
+              { type: "button", action: { type: "message", label: "OK", text: "OK" }, style: "primary", color: "#27ACB2" },
+              { type: "button", action: { type: "message", label: "やり直し", text: "やり直し" }, style: "secondary" },
+            ],
+            spacing: "md",
+          },
+          {
+            type: "text",
+            text: "修正: 「日付 2025/04/01」「金額 1500」のように送信",
+            size: "xxs",
+            color: "#999999",
+            margin: "lg",
+            wrap: true,
+          },
+        ],
+        paddingAll: "15px",
+      },
+    },
+  };
 
   const payload = {
     replyToken: replyToken,
-    messages: [
-      {
-        type: "template",
-        altText: summary + "\n\nこれでOK？",
-        template: {
-          type: "confirm",
-          text: summary + "\n\nこれで登録する？",
-          actions: [
-            { type: "message", label: "OK", text: "OK" },
-            { type: "message", label: "やり直し", text: "やり直し" },
-          ],
-        },
-      },
-    ],
+    messages: [flexMessage],
   };
 
   UrlFetchApp.fetch(url, {
@@ -90,4 +141,19 @@ function replyWithConfirmation(replyToken: string, data: ReceiptData, isDuplicat
     payload: JSON.stringify(payload),
     muteHttpExceptions: true,
   });
+}
+
+function makeFlexRow(label: string, value: string): any {
+  return {
+    type: "box",
+    layout: "horizontal",
+    contents: [
+      { type: "text", text: label, size: "sm", color: "#888888", flex: 2 },
+      { type: "text", text: value || "不明", size: "sm", weight: "bold", flex: 5, wrap: true },
+    ],
+  };
+}
+
+function makeSeparator(): any {
+  return { type: "separator", margin: "sm" };
 }
